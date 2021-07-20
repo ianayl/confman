@@ -1,0 +1,13 @@
+sway-i3/config > .config/i3/config
+sway-i3/barstatsh > bin/barstatsh
+rofi > .config/rofi
+kitty/config > .config/kitty/kitty.conf
+zsh/zshrc > .zshrc
+nvim/config > .config/nvim/init.vim
+nvim/coc > .config/nvim/coc-settings.json
+ranger/config > .config/ranger/rc.conf
+swaylock/config > .config/swaylock/config
+gtk3/config > .config/gtk-3.0/settings.ini
+mako/config > .config/mako/config
+latexmk/config > .latexmkrc
+zathura/config > .config/zathura/zathurarc

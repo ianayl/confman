@@ -1,0 +1,14 @@
+{
+    "latex.build.args": [
+        "-pdf",
+        "-pvc"
+    ],
+    "latex.build.onSave": true,
+    "latex.forwardSearch.executable": "zathura",
+    "latex.forwardSearch.args": [
+        "--synctex-forward",
+        "%l:1:%f",
+        "%p"
+    ],
+    "clangd.semanticHighlighting": true
+}

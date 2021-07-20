@@ -1,0 +1,132 @@
+# /ETC/PROFILE
+source /etc/profile
+
+# VARIABLES
+export PATH="$PATH:$HOME/bin:$HOME/.local/bin"
+export EDITOR='nvim'
+export XDG_CURRENT_DESKTOP='GNOME'
+# export QT_QPA_PLATFORM='wayland'
+export QT_STYLE_OVERRIDE='kvantum'
+export QMK_HOME="/home/ian/lib/qmk/qmk_firmware"
+
+# SETTINGS
+autoload -U compinit && compinit
+autoload -U compaudit && compaudit
+setopt correct
+bindkey -e # emacs bindings
+
+# PROMPT
+gen_git_prompt() {
+  if [ -n "$(git symbolic-ref HEAD 2> /dev/null)" ]
+  then
+    git_prompt="$(git symbolic-ref HEAD 2> /dev/null | cut -c 12-)"
+  else
+    git_prompt="$(git rev-parse --short HEAD 2> /dev/null)"
+  fi
+  local STAT
+  STAT=$(git status --porcelain -b 2> /dev/null)
+  if [ -n "$STAT" ]
+  then
+
+    # changed
+    if $(echo "$STAT" | grep -E '^\?\?' &> /dev/null) 
+    then
+      git_prompt="${git_prompt}%F{cyan}?%f"
+    fi
+    
+    # added 
+    if $(echo "$STAT" | grep -E '^A  |^M  |^MM ' &> /dev/null) 
+    then
+      git_prompt="${git_prompt}%F{green}+%f"
+    fi
+    # elif $(echo "$STAT" | grep -E '^M  ' &> /dev/null) 
+    # then
+    #   git_prompt="${git_prompt}%F{green}+%f"
+    # elif $(echo "$STAT" | grep -E '^MM ' &> /dev/null) 
+    # then
+    #   git_prompt="${git_prompt}%F{green}+%f"
+    # fi
+    
+    # modified
+    if $(echo "$STAT" | grep -E '^ M |^AM |^MM |^ T ' &> /dev/null) 
+    then
+      git_prompt="${git_prompt}%F{blue}!%f"
+    fi
+    # elif $(echo "$STAT" | grep -E '^AM ' &> /dev/null) 
+    # then
+    #   git_prompt="${git_prompt}%F{blue}!%f"
+    # elif $(echo "$STAT" | grep -E '^MM ' &> /dev/null) 
+    # then
+    #   git_prompt="${git_prompt}%F{blue}!%f"
+    # elif $(echo "$STAT" | grep -E '^ T ' &> /dev/null) 
+    # then
+    #   git_prompt="${git_prompt}%F{blue}!%f"
+    # fi
+    
+    # renamed
+    if $(echo "$STAT" | grep -E '^R  ' &> /dev/null) 
+    then
+      git_prompt="${git_prompt}%F{magenta}>%f"
+    fi
+
+    # deleted
+    if $(echo "$STAT" | grep -E '^D  |^ D |^AD ' &> /dev/null) 
+    then
+      git_prompt="${git_prompt}%F{red}-%f"
+    fi
+    # elif $(echo "$STAT" | grep -E '^ D ' &> /dev/null) 
+    # then
+    #   git_prompt="${git_prompt}%F{red}-%f"
+    # elif $(echo "$STAT" | grep -E '^AD ' &> /dev/null) 
+    # then
+    #   git_prompt="${git_prompt}%F{red}-%f"
+    # fi
+
+    # unmerged
+    if $(echo "$STAT" | grep -E '^UU ' &> /dev/null) 
+    then
+      git_prompt="${git_prompt}%F{yellow}#%f"
+    fi
+
+    # unpushed
+    if [ -n "$(git cherry -v)" ]
+    then
+      git_prompt="${git_prompt}%F{yellow}*%f"
+    fi
+
+  fi
+}
+
+precmd() {
+  gen_git_prompt
+  RPROMPT="%F{red}%(?..%?)%f ${git_prompt}"
+}
+
+# PROMPT="%F{magenta}%n%f %F{red}@%f %F{yellow}%~%f "
+PROMPT="%(!.%F{1}.%F{11})%2~%f "
+PROMPT2="%F{red}\ %f"
+
+# ALIASES
+alias ls="ls --color"
+alias nav=". ranger"
+alias checkbat="upower -i /org/freedesktop/UPower/devices/battery_BAT0"
+
+givecspost() {
+    if [ -n "$1" ] && [ "$1" != "pls" ] 
+    then
+        printf "\e[0;31mGIVE ME CS POST OR ELSE\e[0m\n"
+        gcc -Wall -Werror -ggdb -lm $1 && ./a.out
+    elif [ -n "$2" ]
+    then
+        gcc -Wall -Werror -ggdb $2 && valgrind ./a.out
+        printf "\e[0;35mlol you are a sweaty tryhard.\e[0m\n"
+    else
+        printf "\e[0;36mlol what?\e[0m\n"
+    fi
+}
+# alias givecspost="gcc -Wall -Werror"
+
+# Delete qutebrowser garbage cuz qtwebengine sucks
+[ -d "$HOME/VideoDecodeStats" ] && rm -r $HOME/VideoDecodeStats
+[ -d "$HOME/databases-incognito" ] && rm -r $HOME/databases-incognito
+[ -d "$HOME/shared_proto_db" ] && rm -r $HOME/shared_proto_db

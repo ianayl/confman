@@ -1,0 +1,2 @@
+# Give normal users access to change brightness
+chmod 777 /sys/class/backlight/intel_backlight/brightness

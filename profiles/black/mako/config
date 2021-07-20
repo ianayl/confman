@@ -1,0 +1,10 @@
+max-visible=7
+default-timeout=7777
+
+font=Fira Mono 10
+background-color=#011111
+text-color=#FFFFFF
+margin=14
+padding=7
+border-size=4
+border-color=#001313

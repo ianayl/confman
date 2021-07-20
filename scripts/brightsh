@@ -1,0 +1,60 @@
+#!/bin/sh
+
+# brightsh - simple brightness script
+
+# where the brightness files are
+BRIGHT="/sys/class/backlight/intel_backlight/brightness"
+MAXBRIGHT="/sys/class/backlight/intel_backlight/max_brightness"
+
+usage () {
+    >&2 echo "Usage: $0 [options] [value]
+\t--setup\tsets up system for brightness file
+\t-i [value]\tincrease brightness by [value]
+\t-d [value]\tdecrease brightness by [value]"
+    exit
+}
+
+setup () {
+    sudo chmod -v 777 $BRIGHT
+    sudo chmod -v a+r $MAXBRIGHT
+}
+
+increase () {
+    max=$(cat $MAXBRIGHT)
+    echo max brightness at $max
+    echo editing brightness at \"$BRIGHT\"...
+    want=`expr $(cat $BRIGHT) + $1`
+    if [ $want -gt $max ]
+    then
+        want=$max
+    elif [ $want -lt 0 ]
+    then
+        want=0
+    fi
+    echo =\> changing brightness to $want
+    [ -w $BRIGHT ] && echo $want > $BRIGHT || echo $BRIGHT doesn\'t exist.
+}
+
+decrease () {
+    max=$(cat $MAXBRIGHT)
+    echo max brightness at $max
+    echo editing brightness at \"$BRIGHT\"...
+    want=`expr $(cat $BRIGHT) - $1`
+    if [ $want -gt $max ]
+    then
+        want=$max
+    elif [ $want -lt 0 ]
+    then
+        want=0
+    fi
+    echo =\> changing brightness to $want
+    [ -w $BRIGHT ] && echo $want > $BRIGHT || echo $BRIGHT doesn\'t exist.
+}
+
+[ "$1" ] || usage
+case $1 in
+    -i) increase $2 ;;
+    -d) decrease $2 ;;
+    --setup) setup ;;
+    *) usage ;;
+esac

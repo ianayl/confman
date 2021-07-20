@@ -1,0 +1,88 @@
+#!/bin/sh
+
+# conf - Simple configuration profile manager 
+#
+# A part of confman (https://github.com/ianayl/confman)
+
+MASTERDIR="$HOME/etc"
+SCRIPTDIR="$HOME/bin"
+
+usage () {
+    >&2 echo "Usage: $0 [options] [profile]
+\t-l\tload selected configuration profile
+\t-c\tclear current configuration
+\t-q\tlist all configuration profiles
+\t-h\tbrings up this help message"
+    exit
+}
+
+# symlinks scripts
+linkScripts () {
+    ln -sv "$MASTERDIR/scripts" "$SCRIPTDIR"
+}
+
+removeScripts () {
+    [ -L "$SCRIPTDIR" ] && rm -v "$SCRIPTDIR"
+}
+
+# remove old configs
+clearConf () {
+    if [ -s "$MASTERDIR/profiles/.oldlinks" ] 
+    then
+        while IFS= read -r line || [ -n "$line" ]
+        do
+	    if [ -L "$line" ]
+	    then
+		echo "==> Removing $line"
+	        rm "$line"
+	    else
+	        >&2 echo "Warning: $line stated in .oldlinks is not a symlink, not removing."
+	    fi
+        done < "$MASTERDIR/profiles/.oldlinks"
+        rm "$MASTERDIR/profiles/.oldlinks"
+	echo "==> Cleared old configuration"
+	[ "$1" = "-e" ] && exit 0
+    fi
+    echo "==> Configurations clean, nothing to clear."
+}
+
+# link new configs
+loadConf () {
+    clearConf
+    if [ -s "$MASTERDIR/profiles/.oldlinks" ]
+    then
+        >&2 echo "Error: Old links not yet removed, please remove old links with ."
+	exit 1
+    elif [ -n "$1" ] && [ -f "$MASTERDIR/profiles/$1/links" ]
+    then
+        while IFS= read -r line || [ -n "$line" ]
+        do
+	    src="$MASTERDIR/profiles/$1/$(echo $line | cut -d'>' -f 1 | tr -d "[:space:]")"
+	    dest="$HOME/$(echo $line | cut -d'>' -f 2 | tr -d "[:space:]")"
+	    echo "==> Linking '$src' -> '$dest'"
+	    mkdir -pv "$(dirname $dest)"
+	    ln -s "$src" "$dest" && echo "$dest" >> "$MASTERDIR/profiles/.oldlinks"
+        done < "$MASTERDIR/profiles/$1/links"
+    else
+        >&2 echo "Error: Invalid profile issued."
+	exit 1
+    fi
+}
+
+queryConf() {
+    current_dir=$PWD
+    cd $MASTERDIR/profiles
+    ls -d */
+    cd $current_dir
+}
+
+
+[ "$1" ] || usage
+case $1 in
+    -c) clearConf -e ;;
+    -l) loadConf $2 ;;
+    -q) queryConf ;;
+    --script-link) linkScripts ;;
+    --script-remove) removeScripts ;;
+    *) usage ;;
+esac

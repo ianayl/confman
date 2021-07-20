@@ -1,0 +1,86 @@
+#!/bin/sh
+
+# barstatsh - Script for updating the i3/sway status bar
+#
+# Dependencies:
+# - upower
+
+# color
+#COLOR="#ffdaa3"
+#COLOR="#4cd07f"
+COLOR="#ffe5c1"
+
+[ -n "$BARSTATSH_COLOR" ] && COLOR="$BARSTATSH_COLOR"
+
+# study message
+MESSAGE=""
+
+# setting up for json input
+echo '{ "version": 1 }'
+echo '['
+echo '[]'
+
+while true
+do
+    center_spacing=14
+    # center_spacing=$(((192)/2-($(expr length "$MESSAGE")/2)))
+    # Battery module
+    BAT_MODULE="$(upower -i /org/freedesktop/UPower/devices/battery_BAT0 |
+                  grep percentage)"    
+    if [ -n "${BAT_MODULE}" ]
+    then
+        BAT_MODULE="$(echo "${BAT_MODULE}" | tr -s ' ' |
+                      cut -c  14- | sed "s/.$//" )"
+        # center_spacing=$(($center_spacing-$(expr length "Bat %$BAT_MODULE")))
+	    # [ "$BAT_MODULE" -ge "100" ] && center_spacing=$(($center_spacing-10))
+	    # [ "$BAT_MODULE" -lt "10" ] && center_spacing=$(($center_spacing+10))
+        BAT_MODULE="
+            {
+              \"name\":\"battery_label\",
+              \"full_text\":\"Bat\",
+              \"color\":\"${COLOR}\",
+              \"separator_block_width\":10
+            },
+            {
+              \"name\":\"battery_stat\",
+              \"full_text\":\"%${BAT_MODULE}\",
+              \"separator_block_width\":20,
+              \"color\":\"#eeeeee\"
+            },"
+    fi
+
+    # Date module
+    # center_spacing=$(($center_spacing-$(expr length "$(date +"%A") $(date +"%H:%M")")))
+    DATE_MODULE="
+            {
+              \"name\":\"date_weekday\",
+              \"full_text\":\"$(date +"%A")\",
+              \"color\":\"${COLOR}\",
+              \"separator_block_width\":10
+            },
+            {
+              \"name\":\"date_time\",
+              \"full_text\":\"$(date +"%H:%M")\",
+              \"color\":\"#eeeeee\",
+              \"separator_block_width\":0
+            },"
+
+    # center_spacing=$(($center_spacing*10))
+    echo ",
+          [
+            {
+              \"name\":\"message\",
+              \"full_text\":\"${MESSAGE}\",
+              \"align\":\"center\",
+              \"separator_block_width\":${center_spacing}
+            },
+            ${BAT_MODULE}
+            ${DATE_MODULE}
+	    {
+              \"name\":\"end_separator\",
+              \"full_text\":\"\",
+              \"separator_block_width\":0
+	    }
+          ]"
+    sleep 1
+done

@@ -1,0 +1,29 @@
+#!/bin/sh
+
+# scrsh - Screenshot script
+#
+# Dependencies:
+# Xorg:
+# - maim
+# - xclip
+# Wayland:
+# - grim
+# - slurp
+# - jq
+# - wl-clipboard
+
+# getting the name of file
+scrName="$HOME/lib/scr/$(date +"scr_%Y-%m-%d_%H-%M-%S").png"
+
+if [ "$XDG_SESSION_TYPE" = "x11" ]
+then
+    maim -s "$scrName"
+    xclip -selection clipboard -t image/png -i "$scrName"
+else
+    # getting the area of the scrot
+    scrArea="$(swaymsg -t get_tree | jq -r '.. | (.nodes? // empty)[] | select(.pid and .visible) | .rect | "\(.x),\(.y) \(.width)x\(.height)"' | slurp)"
+    
+    #          geometry        name
+    grim -g "$scrArea" "$scrName"
+    wl-copy -t image/png < "$scrName"
+fi

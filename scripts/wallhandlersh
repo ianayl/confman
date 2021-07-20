@@ -1,0 +1,22 @@
+#!/bin/sh
+
+# wallhandlersh - Helper to set wallpaper on both Wayland and Xorg
+#
+# Dependencies:
+# - feh (hey I like feh ok?)
+# - swaybg
+
+mode="fill"
+if [ "$1" = "-t" ]
+then
+    mode="tile"
+    src="$2"
+elif [ "$1" = "-f" ]
+then
+    src="$2"
+else
+    src="$1"
+fi
+
+[ "$XDG_SESSION_TYPE" = "x11" ] && feh "--bg-$mode" "$src" && exit 0
+swaybg -i "$src" -m "$mode"

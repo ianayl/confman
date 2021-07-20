@@ -1,0 +1,6 @@
+configuration {
+	modi: "window,run,drun";
+	font: "Fira Mono 12";
+	theme: "~/.config/rofi/theme.rasi";
+	color-normal: "#222222,  #FFFFFF";
+}

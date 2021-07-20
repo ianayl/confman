@@ -1,0 +1,51 @@
+# background 
+#image=~/lib/img/forest/wallgreen2.png
+color=011111
+
+# indicator colors
+indicator-idle-visible
+indicator-radius=28
+indicator-thickness=14
+indicator-caps-lock
+
+# backspace
+bs-hl-color=ec4e56
+caps-lock-bs-hl-color=db4e56
+
+# ring indicator
+ring-color=558350
+key-hl-color=447240
+caps-lock-key-hl-color=8cb3d9
+
+# verifying
+# inside-ver-color=
+
+# wrong
+# inside-wrong-color=
+ring-wrong-color=ba3d45
+
+# inside-color=011111
+# inside-clear-color=011111
+# inside-caps-lock-color=011111
+# layout-bg-color
+# layout-border-color
+# layout-text-color
+# line-color
+# line-clear-color
+# line-caps-lock-color
+# line-ver-color
+# line-wrong-color
+# line-uses-inside
+# line-uses-ring
+# ring-clear-color
+# ring-caps-lock-color
+# ring-ver-color
+# separator-color
+
+# turning off all text
+disable-caps-lock-text
+text-color=00000000
+text-clear-color=00000000
+text-caps-lock-color=00000000
+text-ver-color=00000000
+text-wrong-color=00000000

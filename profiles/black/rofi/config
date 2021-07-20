@@ -1,0 +1,4 @@
+rofi.color-normal: #222222,  #FFFFFF
+rofi.theme: ~/.config/rofi/theme.rasi
+rofi.font: Fira Mono 12
+rofi.modi: window,run,drun

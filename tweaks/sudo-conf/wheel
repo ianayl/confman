@@ -1,0 +1,6 @@
+# lets wheel shutdown and hibernate without password
+# CONSIDER USING LOGINCTL (ELOGIND)
+# %wheel ALL=(ALL) NOPASSWD: /usr/bin/shutdown, /usr/bin/zzz, /usr/bin/ZZZ, /usr/bin/reboot
+
+# users suck.
+Defaults insults

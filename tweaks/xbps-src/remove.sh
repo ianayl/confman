@@ -1,0 +1,1 @@
+rm -rv $HOME/pkg

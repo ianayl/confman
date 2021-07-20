@@ -1,0 +1,18 @@
+#!/bin/sh
+
+# sysmenush - System menu script
+#
+# - Assumes elogind is used
+# - Assumes i3/sway is used
+
+poweroff_command="loginctl poweroff"
+reboot_command="loginctl reboot"
+logout_command="swaymsg exit"
+[ "$XDG_SESSION_TYPE" = "x11" ] && logout_command="i3-msg exit"
+hibernate_command="loginctl hibernate" 
+suspend_command="loginctl suspend"
+lock_command="swaylock -l"
+
+options='lock\npoweroff\nreboot\nlogout\nhibernate\nsuspend' 
+
+eval \$"$(echo "$options" | rofi -dmenu -p "action")_command"

@@ -1,0 +1,102 @@
+#!/bin/sh
+
+# tweak - Automated tweaks management
+#
+# A part of confman (https://github.com/ianayl/confman)
+
+TWEAKDIR="$HOME/etc/tweaks"
+
+usage () {
+    >&2 echo "Usage: tweak [options] [tweak]
+\t-i\tinstalls selected tweak
+\t-r\tremoves selected tweak
+\t-q\tlists all tweaks
+\t-p\tlists installed tweaks
+\t-a\tassisted prompt to help install tweaks one by one
+\t-h\tbrings up this help message"
+    exit
+}
+
+install () {
+    if [ "$(grep $1 $TWEAKDIR/.installed)" ]
+    then
+        echo "Selected tweak $1 already installed! Are you sure you want to install again?"
+        printf "(NOTE: tweak does not automatically uninstall for you) [y/n] "
+        read confirmation_selection
+        case $confirmation_selection in
+            y|Y) ;;
+            *) exit 1 ;;
+        esac
+    fi
+    if [ ! -e "$TWEAKDIR/$1/install.sh" ]
+    then
+        echo "Tweak: Selected tweak $1 does not exist."
+        exit 1
+    fi
+    TWEAKDIR=$TWEAKDIR $TWEAKDIR/$1/install.sh $1
+    echo $1 >> $TWEAKDIR/.installed
+}
+
+remove () {
+    if [ ! -e "$TWEAKDIR/$1/remove.sh" ]
+    then
+        if [ ! -e "$TWEAKDIR/$1/install.sh" ]
+        then
+            echo "Tweak: Selected tweak $1 does not exist."
+        else
+            echo "Tweak: Selected tweak $1 does not have an uninstall method."
+        fi
+        exit 1
+    fi 
+    # make sure .installed is there so grep doesn't error
+    touch .installed
+    if [ -z "$(grep $1 $TWEAKDIR/.installed)" ]
+    then
+        echo "Selected tweak $1 not installed! Are you sure you want to proceed anyway?"
+        printf "(NOTE: COULD BE DANGEROUS!) [y/n] "
+        read confirmation_selection
+        case $confirmation_selection in
+            y|Y) ;;
+            *) exit 1 ;;
+        esac
+    fi
+    TWEAKDIR=$TWEAKDIR $TWEAKDIR/$1/remove.sh $1
+    sed -i "/^$1\$/d" $TWEAKDIR/.installed
+}
+
+query () {
+    current_dir=$PWD
+    cd $TWEAKDIR
+    ls
+    cd $current_dir
+}
+
+installed () {
+    cat $TWEAKDIR/.installed
+}
+
+automatic () {
+    for tweak in $TWEAKDIR/*/; do
+        [ -d "$tweak" ] || continue
+        tweak=$(basename $tweak)
+        [ "$(grep $tweak $TWEAKDIR/.installed)" ] && continue
+        printf "Install tweak $tweak? [y/n] "
+        read confirmation_selection
+        case $confirmation_selection in
+            y|Y) ;;
+            *) echo "Skipped tweak $tweak" && continue ;;
+        esac
+        install "$tweak"
+    done
+}
+
+[ "$1" ] || usage
+case $1 in
+    -i) install $2 ;;
+    -r) remove $2 ;;
+    -q) query ;;
+    -p) installed ;;
+    -a) automatic ;;
+    *) usage ;;
+esac
+sac
